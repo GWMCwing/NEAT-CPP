@@ -2,3 +2,5 @@
 /src/javascript/sintest*
 /src/cpp/links.md
 /src/javascript
+*.o
+!bin/*

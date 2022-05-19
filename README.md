@@ -1,5 +1,8 @@
-# NEAT-fork 
+# NEAT-fork
+
 Cpp fork of [GabrielTavernini/NeatJS](https://github.com/GabrielTavernini/NeatJS)
-# Description
+
+## Description
+
  **🚧 Still under construction 🚧**  
  **Expected build date: Late August**
