@@ -1,5 +1,5 @@
-nn.exe: connection.o genome.o node.o player.o population.o randomFun.o
-	g++ -o -fsanitize=address,leak,undefined nn.exe connection.o genome.o node.o player.o population.o randomFun.o
+nn.exe: randomFun.o connection.o genome.o node.o player.o population.o
+	g++ -o -fsanitize=address,leak,undefined nn.exe randomFun.o connection.o genome.o node.o player.o population.o
 
 connection.o: connection.cpp
 	g++ -c connection.cpp

@@ -1,7 +1,10 @@
-#include "connection.h"
-#include "randomFun.h"
-#include "node.h"
+#include "./header/randomFun.h"
+#include "./header/connection.h"
+#include "./header/node.h"
 namespace neatCpp {
+    // extern long double randGaussian(double, double, double);
+    // extern long double randNum(double, double);
+    //
     Connection::Connection(Node* _fromNode, Node* _toNode, long double _weight) {
         fromNode = _fromNode;
         toNode = _toNode;
@@ -12,10 +15,10 @@ namespace neatCpp {
     void Connection::mutateWeight() {
         const int randomNumber = randNum(0, 100);
         if (randomNumber < 5) {
-            weight = randGaussian(-1, 1);
+            weight = randGaussian(-1, 1, 1);
         } else if (randomNumber < 10) {
             //TODO why 50
-            weight += randGaussian(-1, 1) / 50;
+            weight += randGaussian(-1, 1, 1) / 50;
         }
     }
     Connection* Connection::clone() const {

@@ -98,29 +98,7 @@ namespace neatCpp {
          * @return auto activation function
          * ? https://stackoverflow.com/questions/31387238/c-function-returning-function
          */
-        fptrLDouble getActivation(int index) {
-            switch (index) {
-                case 0:
-                    return sigmoid; break;
-                case 1:
-                    return identity; break;
-                case 2:
-                    return step; break;
-                case 3:
-                    return tanh; break;
-                case 4:
-                    return ReLU; break;
-                default:
-                    return sigmoid; break;
-            }
-        }
+        fptrLDouble getActivation(int index) const;
     };
-
-    // definition of activation function
-    long double sigmoid(long double x) { return 1 / (1 + exp(-4.9 * x)); }
-    long double identity(long double x) { return x; }
-    long double step(long double x) { return x > 0 ? 1 : 0; }
-    long double tanh(long double x) { return tanh(x); }
-    long double ReLU(long double x) { return x > 0 ? x : 0; }
 }
 #endif

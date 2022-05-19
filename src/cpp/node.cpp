@@ -1,7 +1,17 @@
-#include "node.h"
-#include "connection.h"
-#include "randomFun.h"
+#include "./header/randomFun.h"
+#include "./header/node.h"
+#include "./header/connection.h"
 namespace neatCpp {
+    //
+    // definition of activation function
+    // modify the numberOfActivation in settings.h if needed
+    inline long double sigmoid(long double x) { return 1 / (1 + exp(-4.9 * x)); }
+    inline long double identity(long double x) { return x; }
+    inline long double step(long double x) { return x > 0 ? 1 : 0; }
+    inline long double tanh(long double x) { return tanh(x); }
+    inline long double ReLU(long double x) { return x > 0 ? x : 0; }
+    //
+    //
     Node::Node(long int _number, long int _layer, bool _isOutput = false) {
         number = _number;
         layer = _layer;
@@ -39,7 +49,7 @@ namespace neatCpp {
             bias = randNum(-1, 1);
             return;
         }
-        bias += randGaussian(-1, 1) / 50;
+        bias += randGaussian(-1, 1, 1) / 50;
     }
     void Node::mutateActivationFunction() {
         activationFunctionIndex = randNum(0, 1) * numberOfActivation;
@@ -84,5 +94,22 @@ namespace neatCpp {
     int Node::getActivationFunctionIndex() const { return activationFunctionIndex; }
     long double Node::getBias() const { return bias; }
     long int Node::getLayer() const { return layer; }
+    //
+    fptrLDouble Node::getActivation(int index) const {
+        switch (index) {
+            case 0:
+                return sigmoid; break;
+            case 1:
+                return identity; break;
+            case 2:
+                return step; break;
+            case 3:
+                return tanh; break;
+            case 4:
+                return ReLU; break;
+            default:
+                return sigmoid; break;
+        }
+    }
 
 }

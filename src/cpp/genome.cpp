@@ -1,14 +1,14 @@
 #include <cmath>
 #include <algorithm>
-#include "genome.h"
-#include "node.h"
-#include "connection.h"
-#include "randomFun.h"
+#include "./header/randomFun.h"
+#include "./header/genome.h"
+#include "./header/node.h"
+#include "./header/connection.h"
 namespace neatCpp {
     //
     bool nodeCompare(Node*, Node*);
     //
-    Genome::Genome(long int _input, long int _output, long int _id, bool _offSpring = false) {
+    Genome::Genome(long int _input, long int _output, long int _id, bool _offSpring) {
         inputs = _input;
         outputs = _output;
         id = _id;
