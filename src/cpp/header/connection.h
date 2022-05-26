@@ -1,5 +1,6 @@
 #ifndef CONNECTION_HEADER_H
 #define CONNECTION_HEADER_H
+
 namespace neatCpp {
     class Node;
 

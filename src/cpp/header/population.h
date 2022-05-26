@@ -1,18 +1,13 @@
 #ifndef POPULATION_HEADER_H
 #define POPULATION_HEADER_H
-#include "player.h"
+
 #include <vector>
+
+#include "player.h"
+
 namespace neatCpp {
     // this class have to be implemented by the user
     class Population {
-    private:
-        std::vector<Player*> population; // population of the players
-        Player* bestPlayer; // best player of the population
-        long double bestFitness; // best fitness of the population
-
-        long int generation; // generation of the population
-        std::vector<Player*> matingPool; // mating pool of the population, for reproduction
-        //
     public:
         // methods
         /**
@@ -20,7 +15,7 @@ namespace neatCpp {
          *
          * @param populationSize size of the population
          */
-        Population(long int populationSize);
+        Population(int populationSize);
         //
         /**
          * @brief Destroy the Population object
@@ -59,6 +54,13 @@ namespace neatCpp {
          */
         long double getAverageScore();
         //
+        /**
+         * @brief check if the population has ended
+         *
+         * @return true if the population has ended, false if not
+         */
+        bool populationDone();
+        //
         //  ------------- optional methods ---------
         //
         /**
@@ -66,13 +68,16 @@ namespace neatCpp {
          *
          */
         void updateAlive();
+
+        void deleteAllPlayer();
         //
-        /**
-         * @brief check if the population has ended
-         *
-         * @return true if the population has ended, false if not
-         */
-        bool populationDone();
+    private:
+        std::vector<Player*> population; // population of the players
+        Player* bestPlayer; // best player of the population
+        long double bestFitness; // best fitness of the population
+
+        long int generation; // generation of the population
+        std::vector<long int> matingPool; // mating pool of the population, for reproduction
         //
     };
 }

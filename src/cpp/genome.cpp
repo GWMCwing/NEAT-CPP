@@ -1,9 +1,12 @@
 #include <cmath>
 #include <algorithm>
+
 #include "./header/randomFun.h"
+
 #include "./header/genome.h"
 #include "./header/node.h"
 #include "./header/connection.h"
+
 namespace neatCpp {
     //
     bool nodeCompare(Node*, Node*);
@@ -284,12 +287,11 @@ namespace neatCpp {
     }
 
     void Genome::sortByLayer() {
-        //!=============================================
         std::sort(nodes.begin(), nodes.end(), nodeCompare);
     }
 
     Genome* Genome::clone() const {
-        Genome* genome = new Genome(inputs, outputs, id);
+        Genome* genome = new Genome(inputs, outputs, id, false);
         genome->nodes = cloneNodesVector();
         genome->connections = cloneConnectionVector(genome->nodes);
         return genome;

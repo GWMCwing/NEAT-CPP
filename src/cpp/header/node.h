@@ -3,16 +3,12 @@
 
 #include <vector>
 #include <cmath>
+
+#include "activationFunction.h"
 #include "settings.h"
+
 namespace neatCpp {
-    extern const int numberOfActivation;
     // activation function
-    typedef long double (*fptrLDouble)(long double);
-    long double sigmoid(long double x);
-    long double identity(long double x);
-    long double step(long double x);
-    long double tanh(long double x);
-    long double ReLU(long double x);
     //
     class Connection;
     class Node {
@@ -27,7 +23,7 @@ namespace neatCpp {
          * @param _isOutput is the node an output node
          *
          */
-        Node(long int _number, long int _layer, bool _isOutput/*  = false */);
+        Node(long int _number, long int _layer, bool _isOutput);
         //
         /**
          * @brief Destroy the Node object, ONLY called by the genome object
@@ -83,6 +79,7 @@ namespace neatCpp {
         void setActivationFunctionIndex(int index);
         void setBias(int biasValue);
         void increaseLayer(int value);
+        //
     private:
         long int number; // number of the node
         long int layer; // layer of the node
@@ -98,7 +95,7 @@ namespace neatCpp {
          * @return auto activation function
          * ? https://stackoverflow.com/questions/31387238/c-function-returning-function
          */
-        fptrLDouble getActivation(int index) const;
+         // fptrLDouble Node::getActivation(int index) const;
     };
 }
 #endif

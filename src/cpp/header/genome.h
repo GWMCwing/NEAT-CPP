@@ -1,9 +1,11 @@
 #ifndef GENOME_HEADER_H
 #define GENOME_HEADER_H
+
+#include <vector>
+
 #include "node.h"
 #include "connection.h"
-#include "settings.h"
-#include <vector>
+// #include "settings.h"
 namespace neatCpp {
     class Genome {
     private:
@@ -25,7 +27,7 @@ namespace neatCpp {
          * @param _id id of the genome
          * @param _offSpring is this genome a offspring
          */
-        Genome(long int _input, long int _output, long int _id, bool _offSpring = false);
+        Genome(long int _input, long int _output, long int _id, bool _offSpring);
         // 
         /**
          * @brief Destroy the Genome object, called by the player object

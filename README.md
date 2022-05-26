@@ -1,4 +1,4 @@
-# NEAT-fork
+# NEAT-CPP
 
 Cpp fork of [GabrielTavernini/NeatJS](https://github.com/GabrielTavernini/NeatJS)
 

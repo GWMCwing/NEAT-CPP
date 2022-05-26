@@ -1,0 +1,21 @@
+nn.exe: ./obj/randomFun.o ./obj/connection.o ./obj/genome.o ./obj/node.o ./obj/player.o ./obj/population.o 
+	g++ -o -fsanitize=address,leak,undefined nn.exe ./obj/randomFun.o ./obj/connection.o ./obj/genome.o ./obj/node.o ./obj/player.o ./obj/population.o
+
+./obj/connection.o: connection.cpp
+	g++ -c connection.cpp -o ./obj/connection.o
+
+./obj/genome.o: genome.cpp
+	g++ -c genome.cpp -o ./obj/genome.o
+
+./obj/node.o: node.cpp
+	g++ -c node.cpp -o ./obj/node.o
+
+./obj/player.o : player.cpp
+	g++ -c player.cpp -o ./obj/player.o
+
+./obj/population.o : population.cpp
+	g++ -c population.cpp -o ./obj/population.o
+
+./obj/randomFun.o : randomFun.cpp
+	g++ -c randomFun.cpp -o ./obj/randomFun.o
+

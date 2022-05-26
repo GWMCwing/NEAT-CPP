@@ -1,7 +1,10 @@
 #ifndef PLAYER_HEADER_H
 #define PLAYER_HEADER_H
-#include "genome.h"
+
 #include <vector>
+
+#include "genome.h"
+
 namespace neatCpp {
     // this class have to be implemented by the user
     class Player {
@@ -22,12 +25,18 @@ namespace neatCpp {
         // --------- required methods ---------------
         //
     public:
+        Player(int id);
         /**
          * @brief return a deep copy of this player
          *
          * @return Player
          */
         Player* clone() const;
+        Genome* getBrain() const;
+        long double getFitness() const;
+        bool isDead() const;
+        long double getScore() const;
+        void setFitness(long double value);
         //
         /**
          * @brief crossover two players
