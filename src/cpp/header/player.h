@@ -1,5 +1,5 @@
-#ifndef PLAYER_HEADER_H
-#define PLAYER_HEADER_H
+#ifndef NEATCPP_PLAYER_HEADER_H
+#define NEATCPP_PLAYER_HEADER_H
 
 #include <vector>
 
@@ -26,6 +26,9 @@ namespace neatCpp {
         //
     public:
         Player(int id);
+        Player(const Player* player);
+        Player(Genome* _brain);
+        ~Player();
         /**
          * @brief return a deep copy of this player
          *
@@ -33,9 +36,11 @@ namespace neatCpp {
          */
         Player* clone() const;
         Genome* getBrain() const;
-        long double getFitness() const;
         bool isDead() const;
+        void setDead(bool isDead);
         long double getScore() const;
+        void setScore(long double value);
+        long double getFitness() const;
         void setFitness(long double value);
         //
         /**
@@ -51,15 +56,13 @@ namespace neatCpp {
          *
          */
         void look(const std::vector<long double>& inputVision);
-        void look();
         //
         /**
          * @brief decide what to do
          *
          */
-        void think() {
-            decisions = brain->feedForward(vision);
-        }
+        const std::vector<long double>& think();
+        const std::vector<long double>& Player::think(const std::vector<long double>& inputVision);
         //
         /**
          * @brief perform movement the player

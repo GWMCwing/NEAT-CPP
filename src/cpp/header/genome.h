@@ -1,5 +1,5 @@
-#ifndef GENOME_HEADER_H
-#define GENOME_HEADER_H
+#ifndef NEATCPP_GENOME_HEADER_H
+#define NEATCPP_GENOME_HEADER_H
 
 #include <vector>
 

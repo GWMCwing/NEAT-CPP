@@ -1,5 +1,5 @@
-#ifndef RANDOMFUNCTION_HEADER_H
-#define RANDOMFUNCTION_HEADER_H
+#ifndef NEATCPP_RANDOMFUNCTION_HEADER_H
+#define NEATCPP_RANDOMFUNCTION_HEADER_H
 
 namespace neatCpp {
     long double randGaussian(double lowBound, double upBound, double deviation);

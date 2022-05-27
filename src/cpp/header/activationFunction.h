@@ -1,5 +1,5 @@
-#ifndef ACTIVATIONF_HEADER_H
-#define ACTIVATIONF_HEADER_H
+#ifndef NEATCPP_ACTIVATIONF_HEADER_H
+#define NEATCPP_ACTIVATIONF_HEADER_H
 
 namespace neatCpp {
     const int numberOfActivation = 5;

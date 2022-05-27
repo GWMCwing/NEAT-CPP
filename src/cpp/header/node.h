@@ -1,5 +1,5 @@
-#ifndef NODE_HEADER_H
-#define NODE_HEADER_H
+#ifndef NEATCPP_NODE_HEADER_H
+#define NEATCPP_NODE_HEADER_H
 
 #include <vector>
 #include <cmath>

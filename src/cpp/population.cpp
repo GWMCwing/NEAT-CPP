@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include "./header/population.h"
 #include "./header/randomFun.h"
 namespace neatCpp {
@@ -46,11 +47,9 @@ namespace neatCpp {
         for (int i = 0; i < population.size(); ++i) {
             Player* parent1 = selectPlayer();
             Player* parent2 = selectPlayer();
-            if (parent1->getFitness() > parent2->getFitness()) {
-                children.push_back(parent1->crossover(parent2));
-            } else {
-                children.push_back(parent2->crossover(parent1));
-            }
+            // removed compare, already in crossover
+            children.push_back(parent1->crossover(parent2));
+
         }
         deleteAllPlayer();
         population = children;
@@ -97,7 +96,7 @@ namespace neatCpp {
         }
     }
     Player* Population::selectPlayer() {
-        return population[matingPool[floor(randNum(0, matingPool.size()))]];
+        return population[matingPool[(int)(randNum(0, matingPool.size()))]];
     }
     long double Population::getAverageScore() {
         long int averageSum = 0;
