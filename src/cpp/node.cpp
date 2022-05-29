@@ -18,15 +18,11 @@ namespace neatCpp {
         inputSum = 0;
         outputValue = 0;
         outputConnections = std::vector<Connection*>();
+        // std::cout << "created Node: " << _number << std::endl;
     }
     //
     Node::~Node() {
-        // prevent double deallocation when calling from ~Genome
-        // connection will be deleted in ~Genome instead of ~Node
-        const size_t sizeOfConnection = outputConnections.size();
-        for (int i = 0; i < sizeOfConnection; ++i) {
-            outputConnections[i] = nullptr;
-        }
+        // std::cout << "Deleted Node: " << number << std::endl;
     }
     //
     void Node::engage() {

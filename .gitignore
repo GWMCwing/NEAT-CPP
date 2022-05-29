@@ -1,6 +1,8 @@
 .vscode
 /src/javascript/sintest*
-/src/cpp/links.md
+/src/cpp/*.md
+/src/cpp/*.txt
 /src/javascript
 *.o
 !bin/*
+/test

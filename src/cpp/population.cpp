@@ -3,12 +3,12 @@
 #include "./header/population.h"
 #include "./header/randomFun.h"
 namespace neatCpp {
-    Population::Population(int populationSize) {
+    Population::Population(int populationSize, int inputSize, int outputSize) {
         bestFitness = 0;
         generation = 0;
         bestPlayer = nullptr;
         for (int i = 0;i < populationSize;++i) {
-            Player* p = new Player(i);
+            Player* p = new Player(i, inputSize, outputSize);
             p->getBrain()->generateNetwork();
             p->getBrain()->mutate();
             population.push_back(p);
@@ -17,18 +17,9 @@ namespace neatCpp {
     Population::~Population() {
         if (bestPlayer)
             delete bestPlayer;
-    }
-    void Population::updateAlive() {
         for (int i = 0; i < population.size();++i) {
-            Player* p = population[i];
-            if (!p->isDead()) {
-                p->look();
-                p->think();
-                p->move();
-                p->update();
-            }
+            delete population[i];
         }
-        //* display is not implemented
     }
     bool Population::populationDone() {
         for (int i = 0; i < population.size();++i) {
@@ -57,10 +48,10 @@ namespace neatCpp {
         //
         for (int i = 0;i < population.size();++i) {
             population[i]->getBrain()->generateNetwork();
-            children[i] = nullptr;
         }
         std::cout << "Generation: " << generation << " created" << std::endl;
     }
+    //
     void Population::calculateFitness() {
         long double currentMax = 0;
         for (int i = 0; i < population.size();++i) {
@@ -74,7 +65,6 @@ namespace neatCpp {
                     bestPlayer = nullptr;
                 }
                 bestPlayer = player->clone();
-                // bestPlayer->getBrain()
             }
 
             if (fitness > currentMax) {

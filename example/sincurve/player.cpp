@@ -1,6 +1,6 @@
-#include "./header/player.h"
+#include "../../src/cpp/header/player.h"
 namespace neatCpp {
-    // modify according to needs
+    // modify according to your needs
     void Player::calculateFitness() {
         fitness = score;
         fitness /= brain->calculateWeight();

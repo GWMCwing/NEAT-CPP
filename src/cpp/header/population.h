@@ -15,7 +15,7 @@ namespace neatCpp {
          *
          * @param populationSize size of the population
          */
-        Population(int populationSize);
+        Population(int populationSize, int inputSize, int outputSize);
         //
         /**
          * @brief Destroy the Population object
@@ -60,6 +60,7 @@ namespace neatCpp {
          * @return true if the population has ended, false if not
          */
         bool populationDone();
+        void deleteAllPlayer();
         //
         //  ------------- optional methods ---------
         //
@@ -67,9 +68,8 @@ namespace neatCpp {
          * @brief update the population
          *
          */
-        void updateAlive();
+         // void updateAlive();
 
-        void deleteAllPlayer();
         //
     private:
         std::vector<Player*> population; // population of the players

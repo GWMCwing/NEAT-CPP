@@ -43,16 +43,16 @@ namespace neatCpp {
     }
 
     Genome::~Genome() {
-        // delete node first to prevent double deallocation;
-        const size_t sizeOfNodes = nodes.size();
-        for (int i = 0; i < sizeOfNodes; ++i) {
-            delete nodes[i];
-            nodes[i] = nullptr;
-        }
+        // delete node first to prevent double deallocation or disabled;
         const size_t sizeOfConnection = connections.size();
         for (int i = 0; i < sizeOfConnection; ++i) {
             delete connections[i];
             connections[i] = nullptr;
+        }
+        const size_t sizeOfNodes = nodes.size();
+        for (int i = 0; i < sizeOfNodes; ++i) {
+            delete nodes[i];
+            nodes[i] = nullptr;
         }
     }
 
@@ -291,22 +291,22 @@ namespace neatCpp {
     }
 
     Genome* Genome::clone() const {
-        Genome* genome = new Genome(inputs, outputs, id, false);
+        Genome* genome = new Genome(inputs, outputs, id, true); // true to prevent creation of nodes and connections
         genome->nodes = cloneNodesVector();
         genome->connections = cloneConnectionVector(genome->nodes);
         return genome;
     }
     std::vector<Node*> Genome::cloneNodesVector() const {
-        std::vector<Node*> rV = {};
+        std::vector<Node*> rV;
         rV.reserve(nodes.size());
         for (int i = 0;i < nodes.size();++i) {
-            rV[i] = nodes[i]->clone();
+            rV.push_back(nodes[i]->clone());
         }
         return rV;
     }
     std::vector<Connection*> Genome::cloneConnectionVector(const std::vector<Node*>& nodeList) const {
         //! add connection from node to node, same as the original
-        std::vector<Connection*> rV = {};
+        std::vector<Connection*> rV;
         rV.reserve(connections.size());
         for (int i = 0;i < connections.size();++i) {
             const Connection* const origConn = connections[i];
@@ -316,6 +316,7 @@ namespace neatCpp {
             Node* nT = nodeList[getNode(nTNumber)];
             Connection* conn = new Connection(nF, nT, origConn->getWeight());
             conn->setEnable(origConn->getEnabled());
+            rV.push_back(conn);
         }
         return rV;
     }

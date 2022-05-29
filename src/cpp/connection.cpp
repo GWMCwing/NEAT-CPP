@@ -12,8 +12,11 @@ namespace neatCpp {
         toNode = _toNode;
         weight = _weight;
         enabled = true;
+        // std::cout << "Created Connection From: " << toNode->getNumber() << std::endl;
     }
-    Connection::~Connection() { }
+    Connection::~Connection() {
+        // std::cout << "Deleted Connection From: " << toNode->getNumber() << std::endl;
+    }
     void Connection::mutateWeight() {
         const int randomNumber = randNum(0, 100);
         if (randomNumber < 5) {

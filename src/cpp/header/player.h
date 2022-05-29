@@ -25,7 +25,7 @@ namespace neatCpp {
         // --------- required methods ---------------
         //
     public:
-        Player(int id);
+        Player(long int id, int inputSize, int outputSize);
         Player(const Player* player);
         Player(Genome* _brain);
         ~Player();
@@ -62,7 +62,7 @@ namespace neatCpp {
          *
          */
         const std::vector<long double>& think();
-        const std::vector<long double>& Player::think(const std::vector<long double>& inputVision);
+        const std::vector<long double>& think(const std::vector<long double>& inputVision);
         //
         /**
          * @brief perform movement the player
