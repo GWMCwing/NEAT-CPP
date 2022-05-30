@@ -34,7 +34,7 @@ namespace neatCpp {
             }
 
             for (long int i = 0; i < _input; ++i) {
-                for (long int j = 0; j < _output + _input; ++j) {
+                for (long int j = _input; j < _output + _input; ++j) {
                     const long double weight = randNum(0, 1) * _input * sqrt(2.0 / (double)_input);
                     connections.push_back(new Connection(nodes[i], nodes[j], weight));
                 }
@@ -121,42 +121,34 @@ namespace neatCpp {
         const long int connectionLen = connections.size();
         for (long int i = 0; i < connectionLen; ++i) {
             const long int index = commonConnection(connections[i]->getInnovationNumber(), partner->connections);
-
             if (index != -1) {
                 // have common connections
-
                 Connection* connection = randNum(0, 1) < 0.5 ? connections[i]->clone() : partner->connections[index]->clone();
-
                 // reassign nodes
-                long int fromNodeIndex = offSpring->getNode(connection->getFromNode()->getNumber());
-                long int toNodeIndex = offSpring->getNode(connection->getToNode()->getNumber());
+                const long int fromNodeIndex = offSpring->getNode(connection->getFromNode()->getNumber());
+                const long int toNodeIndex = offSpring->getNode(connection->getToNode()->getNumber());
                 if (fromNodeIndex != -1 && toNodeIndex != -1) {
-
                     Node* fromNode = offSpring->nodes[fromNodeIndex];
                     Node* toNode = offSpring->nodes[toNodeIndex];
-
                     connection->setFromNode(fromNode);
                     connection->setToNode(toNode);
-
                     offSpring->connections.push_back(connection);
+                } else {
+                    delete connection;
                 }
-
             } else {
                 // no common connection => take from this
                 Connection* connection = connections[i]->clone();
-
                 long int fromNodeIndex = offSpring->getNode(connection->getFromNode()->getNumber());
                 long int toNodeIndex = offSpring->getNode(connection->getToNode()->getNumber());
-
                 if (fromNodeIndex != -1 && toNodeIndex != -1) {
-
                     Node* fromNode = offSpring->nodes[fromNodeIndex];
                     Node* toNode = offSpring->nodes[toNodeIndex];
-
                     connection->setFromNode(fromNode);
                     connection->setToNode(toNode);
-
                     offSpring->connections.push_back(connection);
+                } else {
+                    delete connection;
                 }
             }
         }
@@ -195,6 +187,7 @@ namespace neatCpp {
         const long int nodesLen = nodes.size();
         Connection* pickedConnection = connections[connectionIndex];
         // delete connection
+
         connections.erase(connections.begin() + connectionIndex);
 
         // create new node
@@ -214,6 +207,7 @@ namespace neatCpp {
         connections.push_back(newConnection2);
         nodes.push_back(newNode);
         ++nextNode;
+        delete pickedConnection;
     }
 
     void Genome::addConnection() {
@@ -333,11 +327,23 @@ namespace neatCpp {
     long double Genome::calculateWeight() const {
         return connections.size() + nodes.size();
     }
+    void Genome::exportGenome(std::fstream& file) {
+        file << nodes.size() << " " << connections.size()
+            << " " << layers << " " << nextNode << "\n";
+        for (int i = 0; i < nodes.size(); ++i) {
+            nodes[i]->exportNode(file);
+            file << " ";
+        }
+        file << "\n";
+        for (int i = 0; i < connections.size(); ++i) {
+            connections[i]->exportConnection(file);
+            file << " ";
+        }
+    }
 
     bool nodeCompare(Node* n1, Node* n2) {
         return n1->getNumber() < n2->getNumber();
     }
-
 
 }
 
