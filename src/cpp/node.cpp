@@ -42,6 +42,7 @@ namespace neatCpp {
             bias = randNum(-1, 1);
             return;
         }
+        //? why 50
         bias += randGaussian(-1, 1, 1) / 50;
     }
     void Node::mutateActivationFunction() {
@@ -69,6 +70,10 @@ namespace neatCpp {
         node->bias = bias;
         node->activationFunctionIndex = activationFunctionIndex;
         return node;
+    }
+    //
+    void Node::exportNode(std::fstream& file) const {
+        file << layer << " " << output << " " << activationFunctionIndex;
     }
     //
     // setter

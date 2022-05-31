@@ -6,6 +6,7 @@
 #include "player.h"
 
 namespace neatCpp {
+
     // this class have to be implemented by the user
     class Population {
     public:
@@ -61,6 +62,8 @@ namespace neatCpp {
          */
         bool populationDone();
         void deleteAllPlayer();
+        bool exportPopulation(std::string path) const;
+        Population* importPopulation(std::string path);
         //
         //  ------------- optional methods ---------
         //
@@ -72,6 +75,7 @@ namespace neatCpp {
 
         //
     private:
+        const int exportVersion = 1;
         std::vector<Player*> population; // population of the players
         Player* bestPlayer; // best player of the population
         long double bestFitness; // best fitness of the population

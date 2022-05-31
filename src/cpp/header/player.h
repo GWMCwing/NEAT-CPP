@@ -1,6 +1,7 @@
 #ifndef NEATCPP_PLAYER_HEADER_H
 #define NEATCPP_PLAYER_HEADER_H
 
+#include <fstream>
 #include <vector>
 
 #include "genome.h"
@@ -75,6 +76,7 @@ namespace neatCpp {
          *
          */
         void calculateFitness();
+        void exportPlayer(std::fstream& file);
         //
         // ----- optional methods, depends on the implementation ----------
         //

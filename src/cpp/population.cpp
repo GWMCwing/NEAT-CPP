@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <fstream>
 #include "./header/population.h"
 #include "./header/randomFun.h"
 namespace neatCpp {
@@ -100,5 +100,48 @@ namespace neatCpp {
             delete population[i];
             population[i] = nullptr;
         }
+    }
+    //
+    //
+    //! ask for user to create or not before passing
+    bool Population::exportPopulation(std::string path) const {
+        std::fstream file;
+        file.open(path);
+        if (file.fail()) return false;
+        /*
+            exportVersion
+            populationSize inputSize outputSize generation bestFitness
+            (best palyer) (NULL if no best player)
+            (all genome including best player)
+                (genome)
+                    numberOfNode numberOfConnection layers nextNode
+                    (node) (single line)
+                        layer isOutput activationFunctionIndex
+                    (connection) (single line)
+                        fromNode_number toNode_number weight enabled
+        */
+        file << exportVersion << "\n";
+        file << population.size() << " " << inputSize << " " << outputSize << " "
+            << generation << " " << bestFitness << "\n";
+        //
+        if (bestPlayer) {
+            // file << "BestPlayer: " << "\n";
+            bestPlayer->exportPlayer(file);
+            file << "\n";
+        } else {
+            file << "NULL\n";
+        }
+        //
+        for (int i = 0; i < population.size();++i) {
+            // file << "Population: " << i << "\n";
+            population[i]->exportPlayer(file);
+            file << "\n";
+            // file << "Population: " << i << "End" << "\n";
+        }
+        file.close();
+        return true;
+    }
+    Population* Population::importPopulation(std::string path) {
+
     }
 }

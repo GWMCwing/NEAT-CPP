@@ -31,6 +31,10 @@ namespace neatCpp {
         newConnection->enabled = enabled;
         return newConnection;
     }
+    void Connection::exportConnection(std::fstream& file) const {
+        file << fromNode->getNumber() << " " << toNode->getNumber()
+            << " " << weight << " " << enabled;
+    }
     long int Connection::getInnovationNumber() const {
         return (
             (1 / 2) * (fromNode->getNumber() + toNode->getNumber())

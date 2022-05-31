@@ -2,7 +2,7 @@
 /src/javascript/sintest*
 /src/cpp/*.md
 /src/cpp/*.txt
-/src/javascript
+/src/javascript/ref
 *.o
 !bin/*
 /test

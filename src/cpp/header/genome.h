@@ -2,6 +2,7 @@
 #define NEATCPP_GENOME_HEADER_H
 
 #include <vector>
+#include <fstream>
 
 #include "node.h"
 #include "connection.h"
@@ -128,6 +129,7 @@ namespace neatCpp {
          * @return long double computational weight of the network
          */
         long double calculateWeight() const;
+        void exportGenome(std::fstream& file);
         //
     };
 }

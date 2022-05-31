@@ -50,6 +50,11 @@ namespace neatCpp {
         child->brain->mutate();
         return child;
     }
+    //
+    void Player::exportPlayer(std::fstream& file) {
+        brain->exportGenome(file);
+    }
+    //
     Genome* Player::getBrain() const { return brain; }
     long double Player::getFitness() const { return fitness; }
     void Player::setFitness(long double value) { fitness = value; }

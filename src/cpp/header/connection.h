@@ -1,6 +1,7 @@
 #ifndef NEATCPP_CONNECTION_HEADER_H
 #define NEATCPP_CONNECTION_HEADER_H
 // #include <iostream>
+#include <fstream>
 namespace neatCpp {
     class Node;
 
@@ -55,6 +56,8 @@ namespace neatCpp {
          * @return Connection
          */
         Connection* clone() const;
+        //
+        void exportConnection(std::fstream& file) const;
         //
         /**
          * @brief Get the innovation number of this connection

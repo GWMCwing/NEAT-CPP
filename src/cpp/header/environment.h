@@ -1,5 +1,6 @@
 #ifndef NEATCPP_ENVIRONMENT_HEADER_H
 #define NEATCPP_ENVIRONMENT_HEADER_H
+#include <atomic>
 #include "./population.h"
 namespace neatCpp {
     // negative meaning environment is exiting
@@ -34,17 +35,17 @@ namespace neatCpp {
         bool getEnvironemntLock() const;
         void setEnvironmentUpdateState(int state);
         int getEnvironmentUpdateState() const;
-        void AddToEvent(CommandId eventId);
+        void addToEvent(CommandId eventId);
         // Required event handler
 
         // user defined functions
     private:
-        void HandleEvent();
+        void handleEvent();
         void updateObject();
         void updatePlayer();
         bool exitEnvironment();
         Population* population;
-        EnvironmentState state;
+        std::atomic<EnvironmentState> state;
         EnvData envData;
         std::vector<CommandId> commandBuffer;
     };

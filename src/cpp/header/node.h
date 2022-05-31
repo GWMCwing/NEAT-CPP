@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cmath>
+#include <fstream>
 
 #include "activationFunction.h"
 #include "settings.h"
@@ -63,6 +64,8 @@ namespace neatCpp {
          *
          */
         Node* clone() const;
+        //
+        void exportNode(std::fstream& file) const;
         //
         // getter
         long int getNumber() const;

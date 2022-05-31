@@ -22,7 +22,9 @@ int main() {
     // pipe input to both terminal and logFile
     std::string userInput = "";
     volatile bool exitCli = false;
+    time_t timeStart = time(NULL);
     while (!exitCli) {
+        updateDisplay(env, logFile, timeStart);
         cinString(userInput, logFile);
         handleUserInput(userInput, exitCli);
     }
@@ -35,12 +37,22 @@ int main() {
 }
 //
 //
-std::ofstream initiateFile(std::string path) {
+std::ofstream initiateFile(const std::string path) {
     std::ofstream logFile(path, std::ios::app);
     const std::time_t startTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::string str = "\n\nCreateTime: "; str += (std::ctime(&startTime));
     coutString(str, logFile);
     return logFile;
+}
+//! only call this function in main thread, non-buffered fstream
+void updateDisplay(const neatCpp::Environment* const& env, std::ofstream& logFile, const time_t& timeStart) {
+    const time_t deltaTime = time(NULL) - timeStart;
+    const int hour = deltaTime / 3600;
+    const int minute = (deltaTime / 60) % 60;
+    const int sec = deltaTime % 60;
+    static long double previousScore = -1;
+    // display Generation best player score, average score, delta score from previous
+
 }
 //! only call this function in main thread, non-buffered fstream
 void coutString(const std::string& str, std::ofstream& logFile) {
@@ -53,14 +65,31 @@ void cinString(std::string& str, std::ofstream& logFile) {
     logFile << "> " << str << std::endl;
 }
 void handleUserInput(const std::string& str, volatile bool& exitCli) {
-
+    if (str == "export") {
+        return;
+    }
+    if (str == "stop") {
+        //TODO ask for export
+        return;
+    }
+    if (str == "pause") {
+        return;
+    }
+    if (str == "resume") {
+        return;
+    }
+    if (str == "help") {
+        return;
+    }
 }
 //
 //
 namespace neatCpp {
+    //? this should call Environment member only, non-atomic comparison
     void updateEnvironment(Environment* const& env) {
-        while (env->getEnvironmentUpdateState() >= 0) {
-            if (env->getEnvironmentUpdateState() > 0) {
+        //! possible race condition
+        while (env->getEnvironmentUpdateState() >= 0) { // not exit nor stopping
+            if (env->getEnvironmentUpdateState() > 0) { // is thread blocking
                 sleep_for(25ms);
                 continue;
             }
@@ -72,11 +101,44 @@ namespace neatCpp {
         awaitEnvExitThread.join();
     }
     void awaitEnvExit(Environment*& env) {
-        env->AddToEvent(CommandId::EXIT);
+        env->addToEvent(CommandId::EXIT);
+        //* possible race condition (exit state cannot be changed, problem can be ignored)
         while (env->getEnvironmentUpdateState() != EnvironmentState::EXITED) {
-            sleep_for(50ms);
+            // sleep_for(50ms);
+            std::this_thread::yield(); //? sleep_for should be used
         }
         delete env;
         env = nullptr;
+    }
+    //
+    // OutputBuffer
+    OutputBuffer::OutputBuffer(std::ofstream& _logFile) :logFile(_logFile) {
+        blocked = 0;
+        waitingThread = 0;
+    }
+    OutputBuffer& OutputBuffer::operator<<(std::string str) {
+        ++waitingThread;
+        std::thread outThread = std::thread(outputStr, str);
+        outThread.detach();
+        return *this;
+    }
+    void OutputBuffer::outputStr(std::string str) {
+        //? performance impact
+        while (blocked) {
+            // sleep_for(50ns);
+            std::this_thread::yield();
+        }
+        blocked = true;
+        std::cout << str;
+        std::cout.flush();
+        logFile << str;
+        blocked = false;
+        --waitingThread;
+    }
+    OutputBuffer::~OutputBuffer() {
+        //? performance impact
+        while (waitingThread > 0)
+            // sleep_for(50ns);
+            std::this_thread::yield();
     }
 }

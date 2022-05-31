@@ -17,24 +17,34 @@ namespace neatCpp {
             population = nullptr;
         }
     }
-    bool Environment::exitEnvironment() {
-        state = EnvironmentState::PAUSE;
-        delete population;
-        population = nullptr;
-        state = EnvironmentState::EXITED;
-    }
-    void Environment::AddToEvent(CommandId commandId) {
+    void Environment::addToEvent(CommandId commandId) {
         commandBuffer.push_back(commandId);
     }
     int Environment::updateEnvironment() {
         state = EnvironmentState::UPDATING;
-        HandleEvent();
-        if (state == EnvironmentState::EXITED) return state;
-        if (state == EnvironmentState::PAUSE) return state;
+        handleEvent();
+        if (state == EnvironmentState::EXITED || state == EnvironmentState::PAUSE) return state;
         // TODO
         updateObject();
         updatePlayer();
         state = EnvironmentState::RUNNING;
         return 0;
     }
+    bool Environment::exitEnvironment() {
+        state = EnvironmentState::PAUSE;
+        delete population;
+        population = nullptr;
+        state = EnvironmentState::EXITED;
+    }
+    void Environment::handleEvent() {
+
+    }
+    // edit base on needs
+    void Environment::updateObject() {
+
+    }
+    void Environment::updatePlayer() {
+
+    }
+
 }
