@@ -3,6 +3,7 @@
 /src/cpp/*.md
 /src/cpp/*.txt
 /src/javascript/ref
+/src/cpp/old
 *.o
 !bin/*
 /test

@@ -1,144 +1,172 @@
-// TODO user Input
-// TODO pipe population details to logFile
-// TODO async buffer for piping to logFile
-#include <thread>
-#include <chrono>
+#include <ctime>
 #include <iostream>
-
 
 #include "./header/cli.h"
 
-using namespace std::this_thread;     // sleep_for, sleep_until
-using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
-using std::chrono::system_clock;
-
-int main() {
-    std::ofstream logFile = initiateFile("./log.txt");
-    //
-    // create thread for env
-    neatCpp::Environment* env = new neatCpp::Environment(100, 2, 3);
-    std::thread envThread = std::thread(neatCpp::updateEnvironment, env);
-    // await user input
-    // pipe input to both terminal and logFile
-    std::string userInput = "";
-    volatile bool exitCli = false;
-    time_t timeStart = time(NULL);
-    while (!exitCli) {
-        updateDisplay(env, logFile, timeStart);
-        cinString(userInput, logFile);
-        handleUserInput(userInput, exitCli);
-    }
-    //
-    coutString("Awaiting Environment to Exit...", logFile);
-    envThread.join();
-    logFile.close();
-    coutString("Environment Exited", logFile);
-    return 0;
-}
-//
-//
-std::ofstream initiateFile(const std::string path) {
-    std::ofstream logFile(path, std::ios::app);
-    const std::time_t startTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    std::string str = "\n\nCreateTime: "; str += (std::ctime(&startTime));
-    coutString(str, logFile);
-    return logFile;
-}
-//! only call this function in main thread, non-buffered fstream
-void updateDisplay(const neatCpp::Environment* const& env, std::ofstream& logFile, const time_t& timeStart) {
-    const time_t deltaTime = time(NULL) - timeStart;
-    const int hour = deltaTime / 3600;
-    const int minute = (deltaTime / 60) % 60;
-    const int sec = deltaTime % 60;
-    static long double previousScore = -1;
-    // display Generation best player score, average score, delta score from previous
-
-}
-//! only call this function in main thread, non-buffered fstream
-void coutString(const std::string& str, std::ofstream& logFile) {
-    std::cout << str << std::endl;
-    logFile << str << std::endl;
-}
-//! only call this function in main thread, non-buffered fstream
-void cinString(std::string& str, std::ofstream& logFile) {
-    std::cin >> str;
-    logFile << "> " << str << std::endl;
-}
-void handleUserInput(const std::string& str, volatile bool& exitCli) {
-    if (str == "export") {
-        return;
-    }
-    if (str == "stop") {
-        //TODO ask for export
-        return;
-    }
-    if (str == "pause") {
-        return;
-    }
-    if (str == "resume") {
-        return;
-    }
-    if (str == "help") {
-        return;
-    }
-}
-//
-//
 namespace neatCpp {
-    //? this should call Environment member only, non-atomic comparison
-    void updateEnvironment(Environment* const& env) {
-        //! possible race condition
-        while (env->getEnvironmentUpdateState() >= 0) { // not exit nor stopping
-            if (env->getEnvironmentUpdateState() > 0) { // is thread blocking
-                sleep_for(25ms);
-                continue;
-            }
-            env->updateEnvironment();
-            sleep_for(50ms);
-        }
-        // wait for Env to save all the data
-        std::thread awaitEnvExitThread = std::thread(awaitEnvExit, env);
-        awaitEnvExitThread.join();
+    using namespace std::this_thread;     // sleep_for, sleep_until
+    using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
+    using std::chrono::system_clock;
+    CLI::CLI(int populationSize, int inputSize, int outputSize, int _expectedGeneration, std::ofstream& logFileStream) : logFile(logFileStream) {
+        // \033[=7l to disable line wrapping?
+        outputBuffer = new OutputBuffer(bufferUpdateMutex);
+        //! do NOT lock, dead lock std::lock_guard<std::mutex> lock(envUpdateMutex);
+        env = new Environment(populationSize, inputSize, outputSize, outputBuffer, envUpdateMutex);
+        //
+        previousBestScore = 0;
+        previousAverageScore = 0;
+        expectedGeneration = _expectedGeneration;
+        // display info
+        infoBlockLine = 1;
+        infoBlockHeight = 4;
+        logStartLine = 6;
+        logHeight = 8;
+        inputLine = 14;
+        flushedLogId = 0;
+        startTime = time(nullptr);
+        startContinuousUpdate(); // create new thread for continuous update
     }
-    void awaitEnvExit(Environment*& env) {
-        env->addToEvent(CommandId::EXIT);
-        //* possible race condition (exit state cannot be changed, problem can be ignored)
-        while (env->getEnvironmentUpdateState() != EnvironmentState::EXITED) {
-            // sleep_for(50ms);
-            std::this_thread::yield(); //? sleep_for should be used
-        }
+    CLI::~CLI() {
+        awaitEnvExit();
         delete env;
-        env = nullptr;
+        awaitBufferClear();
+        delete outputBuffer;
     }
-    //
-    // OutputBuffer
-    OutputBuffer::OutputBuffer(std::ofstream& _logFile) :logFile(_logFile) {
-        blocked = 0;
-        waitingThread = 0;
+    void CLI::flushToLogFile() {
+        const std::lock_guard<std::mutex> lock(bufferUpdateMutex);
+        const std::vector<Log> logBuffer = outputBuffer->getLogBuffer_locked();
+        int startIndex = flushedLogId - logBuffer[0].id;
+        if (startIndex < 0) startIndex = 0;
+        for (int i = startIndex;i < logBuffer.size();++i) {
+            logFile << formatString(logBuffer[i]) << "\n";
+        }
+        flushedLogId = logBuffer.back().id;
+        outputBuffer->flushed(flushedLogId);
     }
-    OutputBuffer& OutputBuffer::operator<<(std::string str) {
-        ++waitingThread;
-        std::thread outThread = std::thread(outputStr, str);
-        outThread.detach();
-        return *this;
+    void CLI::updateDisplay() {
+        // to prevent unexpected concurrent call (maybe encountered during user call)
+        std::lock_guard<std::mutex> lock(displayUpdateMutex);
+        std::lock_guard<std::mutex> lock(bufferUpdateMutex);
+        //
+        std::string durationStr, bestScoreStr, bestScoreDeltaStr, averageScoreStr, averageScoreDeltaStr;
+        getDurationStr(durationStr);
+        std::string generationStr = std::to_string(env->getGeneration());
+        getBestScoreStr(bestScoreStr, bestScoreDeltaStr);
+        getAverageScoreStr(averageScoreStr, averageScoreDeltaStr);
+        //
+        std::string envState = "EnvState";
+        std::vector<Log> outputBufferLog = outputBuffer->getLogBuffer_locked();
+        int logStart = outputBufferLog.size() - logHeight;
+        //
+        std::cout << "\0337\033[1;1HDuration: " + durationStr + " Generation: " + generationStr + "\0338";
+        std::cout << "\0337\033[2;1HBest Score: " + bestScoreStr + ", Delta: " + bestScoreDeltaStr + "\0338";
+        std::cout << "\0337\033[3;1HAverage Score: " + averageScoreStr + ", Delta: " + averageScoreDeltaStr + "\0338";
+        std::cout << "\0337\033[4;1HEnvironment State: " + envState + "\0338";
+        std::cout << "\0337\033[5;1H---------------------\0338";
+
+        for (int i = 0; i < logHeight; ++i) {
+            std::string logString = formatString_colored(outputBufferLog[logStart + i]);
+            std::cout << "\0337\033[" + std::to_string(logStartLine + i) + ";1H" + logString + "\0338";
+        }
+        std::cout.flush();
     }
-    void OutputBuffer::outputStr(std::string str) {
-        //? performance impact
-        while (blocked) {
-            // sleep_for(50ns);
+    void CLI::getDurationStr(std::string& durationStr) const {
+        std::time_t deltaTime = time(nullptr) - startTime;
+        std::string hourStr = "0" + std::to_string((int)(deltaTime / 3600));
+        std::string minuteStr = "0" + std::to_string((int)((deltaTime / 60) % 60));
+        std::string secondStr = "0" + std::to_string((int)((deltaTime % 60)));
+        durationStr = hourStr.substr(1) + ":" + minuteStr.substr(minuteStr.size() - 2) + ":" + secondStr.substr(secondStr.size() - 2);
+    }
+    void CLI::getAverageScoreStr(std::string& averageScoreStr, std::string& averageScoreDeltaStr) const {
+        long double averageScore = env->getAverageScore();
+        averageScoreStr = std::to_string(averageScore);
+        averageScoreDeltaStr = std::to_string(averageScore - previousAverageScore);
+        if (averageScoreStr.size() > maxNumberChar) averageScoreStr.substr(0, maxNumberChar);
+        if (averageScoreDeltaStr.size() > maxNumberChar) averageScoreDeltaStr.substr(0, maxNumberChar);
+    }
+    void CLI::getBestScoreStr(std::string& bestScoreStr, std::string& bestScoreDeltaStr) const {
+        long double bestScore = env->getBestScore();
+        bestScoreStr = std::to_string(bestScore);
+        bestScoreDeltaStr = std::to_string(bestScore - previousBestScore);
+        if (bestScoreStr.size() > maxNumberChar) bestScoreStr.substr(0, maxNumberChar);
+        if (bestScoreDeltaStr.size() > maxNumberChar) bestScoreDeltaStr.substr(0, maxNumberChar);
+    }
+    void CLI::handleUserInput() {
+
+    }
+    bool CLI::updateOnce() {
+        if (envThreadStarted) return false;
+        //TODO
+        return false;
+    }
+    void CLI::exitCli() {
+        stopEnv();
+        awaitBufferClear();
+    }
+    void CLI::stopEnv() {
+        env->exitEnv();
+        awaitEnvExit();
+    }
+    void CLI::exportPopulation(std::fstream& exportStream) const {
+        env->exportPopulation(exportStream);
+    }
+    void CLI::exportBestPlayer(std::fstream& exportStream) const {
+        env->exportBestPlayer(exportStream);
+    }
+    void CLI::awaitEnvExit() {
+        while (!env->isEnvExited()) {
             std::this_thread::yield();
         }
-        blocked = true;
-        std::cout << str;
-        std::cout.flush();
-        logFile << str;
-        blocked = false;
-        --waitingThread;
     }
-    OutputBuffer::~OutputBuffer() {
-        //? performance impact
-        while (waitingThread > 0)
-            // sleep_for(50ns);
+    void CLI::awaitBufferClear() {
+        while (!outputBuffer->isEmpty(flushedLogId)) {
+            flushToLogFile();
             std::this_thread::yield();
+        }
+    }
+    bool CLI::startContinuousUpdate() {
+        if (envThreadStarted) return false;
+        envThreadStarted = true;
+        envThread = std::thread(continuousUpdateEnvironment);
+        envThread.detach();
+        return true;
+    }
+    void CLI::continuousUpdateEnvironment() {
+        while (!(env->isEnvExiting())) {
+            env->updateOnce();
+            std::this_thread::sleep_for(5ms);
+        }
+    }
+    std::string CLI::formatString(Log log) const {
+        // https://en.cppreference.com/w/cpp/chrono/c/strftime
+        char timeStr[20];
+        std::time_t t = std::time(nullptr);
+        std::strftime(timeStr, sizeof(timeStr), "%T", std::localtime(&t));
+        std::string timeString = timeStr;
+        std::string rStr = "[" + timeString + "] " + log.data;
+        return rStr;
+    }
+    std::string CLI::formatString_colored(Log log) const {
+        std::string colorEsc;
+        std::string str = formatString(log);
+        switch (log.type) {
+            case OutputType::VERBOSE:
+                colorEsc = "\033[38;5;8m"; // gary-ish
+                break;
+            case OutputType::INFO:
+                colorEsc = "\033[39m"; // default
+                break;
+            case OutputType::WARNING:
+                colorEsc = "\033[38;5;208m"; // orange-ish
+                break;
+            case OutputType::ERROR:
+                colorEsc = "\033[91m"; // bright red
+                break;
+            default:
+                colorEsc = "\033[39m"; // default
+                break;
+        }
+        std::string rStr = colorEsc + str + "\033[39;49m";
+        return rStr;
     }
 }

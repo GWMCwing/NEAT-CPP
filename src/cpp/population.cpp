@@ -3,10 +3,11 @@
 #include "./header/population.h"
 #include "./header/randomFun.h"
 namespace neatCpp {
-    Population::Population(int populationSize, int inputSize, int outputSize) {
+    Population::Population(int populationSize, int inputSize, int outputSize, OutputBuffer* _outputBuffer) {
         bestFitness = 0;
         generation = 0;
         bestPlayer = nullptr;
+        outputBuffer = _outputBuffer;
         for (int i = 0;i < populationSize;++i) {
             Player* p = new Player(i, inputSize, outputSize);
             p->getBrain()->generateNetwork();
@@ -32,7 +33,13 @@ namespace neatCpp {
     void Population::naturalSelection() {
         calculateFitness();
         long double averageSum = getAverageScore();
-        std::cout << "Average Sum of Generation " << generation << ": " << averageSum << std::endl;
+
+        // std::cout << "Average Sum of Generation " << generation << ": " << averageSum << std::endl;
+        if (outputBuffer)
+            outputBuffer->printLine(
+                "Average Sum of Generation " + std::to_string(generation) + ": " + std::to_string(averageSum) + "\n"
+                , OutputType::INFO
+            );
         std::vector<Player*> children;
         fillMatingPool();
         for (int i = 0; i < population.size(); ++i) {
@@ -49,7 +56,12 @@ namespace neatCpp {
         for (int i = 0;i < population.size();++i) {
             population[i]->getBrain()->generateNetwork();
         }
-        std::cout << "Generation: " << generation << " created" << std::endl;
+        // std::cout << "Generation: " << generation << " created" << std::endl;
+        if (outputBuffer)
+            outputBuffer->printLine(
+                "Generation: " + std::to_string(generation) + " created\n"
+                , OutputType::INFO
+            );
     }
     //
     void Population::calculateFitness() {
@@ -88,12 +100,19 @@ namespace neatCpp {
     Player* Population::selectPlayer() {
         return population[matingPool[(int)(randNum(0, matingPool.size()))]];
     }
-    long double Population::getAverageScore() {
+    long double Population::getAverageScore() const {
         long int averageSum = 0;
         for (int i = 0; i < population.size();++i) {
             averageSum += population[i]->getScore();
         }
         return averageSum / population.size();
+    }
+    int Population::getGeneration() const {
+        return generation;
+    }
+    int Population::getPopulationSize() const { return population.size(); }
+    long double Population::getBestPlayerScore() const {
+        return bestPlayer ? bestPlayer->getScore() : -1;
     }
     void Population::deleteAllPlayer() {
         for (int i = 0; i < population.size(); ++i) {
@@ -104,10 +123,7 @@ namespace neatCpp {
     //
     //
     //! ask for user to create or not before passing
-    bool Population::exportPopulation(std::string path) const {
-        std::fstream file;
-        file.open(path);
-        if (file.fail()) return false;
+    bool Population::exportPopulation(std::fstream& fileStream) const {
         /*
             exportVersion
             populationSize inputSize outputSize generation bestFitness
@@ -120,28 +136,27 @@ namespace neatCpp {
                     (connection) (single line)
                         fromNode_number toNode_number weight enabled
         */
-        file << exportVersion << "\n";
-        file << population.size() << " " << inputSize << " " << outputSize << " "
+        fileStream << exportVersion << "\n";
+        fileStream << population.size() << " " << inputSize << " " << outputSize << " "
             << generation << " " << bestFitness << "\n";
         //
         if (bestPlayer) {
-            // file << "BestPlayer: " << "\n";
-            bestPlayer->exportPlayer(file);
-            file << "\n";
+            // fileStream << "BestPlayer: " << "\n";
+            bestPlayer->exportPlayer(fileStream);
+            fileStream << "\n";
         } else {
-            file << "NULL\n";
+            fileStream << "NULL\n";
         }
         //
         for (int i = 0; i < population.size();++i) {
-            // file << "Population: " << i << "\n";
-            population[i]->exportPlayer(file);
-            file << "\n";
+            // fileStream << "Population: " << i << "\n";
+            population[i]->exportPlayer(fileStream);
+            fileStream << "\n";
             // file << "Population: " << i << "End" << "\n";
         }
-        file.close();
         return true;
     }
     Population* Population::importPopulation(std::string path) {
-
+        //TODO
     }
 }

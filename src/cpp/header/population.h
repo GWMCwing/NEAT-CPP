@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "player.h"
+#include "./outputBuffer.h"
 
 namespace neatCpp {
 
@@ -16,7 +17,7 @@ namespace neatCpp {
          *
          * @param populationSize size of the population
          */
-        Population(int populationSize, int inputSize, int outputSize);
+        Population(int populationSize, int inputSize, int outputSize, OutputBuffer* _outputBuffer);
         //
         /**
          * @brief Destroy the Population object
@@ -53,7 +54,11 @@ namespace neatCpp {
          * @brief get the average score of the population
          *
          */
-        long double getAverageScore();
+        long double getAverageScore() const;
+        int getGeneration() const;
+        int getPopulationSize() const;
+        long double getBestPlayerScore() const;
+        int getBestPlayerGeneration() const;
         //
         /**
          * @brief check if the population has ended
@@ -62,7 +67,7 @@ namespace neatCpp {
          */
         bool populationDone();
         void deleteAllPlayer();
-        bool exportPopulation(std::string path) const;
+        bool exportPopulation(std::fstream& fileStream) const;
         Population* importPopulation(std::string path);
         //
         //  ------------- optional methods ---------
@@ -79,7 +84,7 @@ namespace neatCpp {
         std::vector<Player*> population; // population of the players
         Player* bestPlayer; // best player of the population
         long double bestFitness; // best fitness of the population
-
+        OutputBuffer* outputBuffer;
         long int generation; // generation of the population
         std::vector<long int> matingPool; // mating pool of the population, for reproduction
         //
