@@ -11,10 +11,14 @@ namespace neatCpp {
      */
     class Connection {
     private:
-        long double weight; // weight of the connection
-        Node* fromNode; // input node, !! do not delete it in destruction !!
-        Node* toNode; // output node, !! do not delete it in destruction !!
-        bool enabled; // is the connection enabled
+        /** weight of the connection */
+        long double weight;
+        /** pointer to input node, !! do not delete it in destruction !!*/
+        Node* fromNode;
+        /** pointer to output node, !! do not delete it in destruction !!*/
+        Node* toNode;
+        /** is the connection enabled*/
+        bool enabled;
         // 
         // methods
     public:
@@ -33,16 +37,6 @@ namespace neatCpp {
          */
         ~Connection();
         //
-        //getter
-        long double getWeight() const;
-        Node* getFromNode() const;
-        Node* getToNode() const;
-        bool getEnabled() const;
-        // setter
-        void setFromNode(Node* _fromNode);
-        void setToNode(Node* _toNode);
-        void setWeight(long int _weight);
-        void setEnable(bool isEnabled);
         //
         /**
          * @brief mutate the weight of the connection
@@ -65,6 +59,19 @@ namespace neatCpp {
          * @return long int
          */
         long int getInnovationNumber() const;
+        //
+        // list of getter
+        long double getWeight() const;
+        Node* getFromNode() const;
+        Node* getToNode() const;
+        bool getEnabled() const;
+        //
+        // list of setter
+        void setFromNode(Node* _fromNode);
+        void setToNode(Node* _toNode);
+        void setWeight(long int _weight);
+        void setEnable(bool isEnabled);
+        //
     };
 }
 #endif

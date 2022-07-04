@@ -5,12 +5,11 @@
 #include <cmath>
 #include <fstream>
 
-#include "activationFunction.h"
-#include "settings.h"
+#include "../util/activationFunction.h"
+#include "../header/settings.h"
 
 namespace neatCpp {
-    // activation function
-    //
+    // forward declaration
     class Connection;
     class Node {
     public:
@@ -64,33 +63,52 @@ namespace neatCpp {
          *
          */
         Node* clone() const;
+        /**
+         * @brief export node data to given fstream
+         *
+         * @param fileStream fstream to be exported to
+         */
+        void exportNode(std::fstream& fileStream) const;
+        /**
+         * @brief clear all output connections in connection vector
+         *
+         */
+        void clearOutputConnections();
         //
-        void exportNode(std::fstream& file) const;
-        //
-        // getter
+        // list of  getter
+
         long int getNumber() const;
         long int getOutput() const;
-        long int getOutputValue() const;
+        long int getActivatedOutputValue() const;
         int getActivationFunctionIndex() const;
         long double getBias() const;
         long int getLayer() const;
-        // setter
-        void clearOutputConnections();
+        //
+        // list of setter
+
         void pushBackConnections(Connection* connection);
         void setInputSum(long double value);
-        void setOutputValue(long double value);
+        void setActivatedOutputValue(long double value);
         void setActivationFunctionIndex(int index);
         void setBias(int biasValue);
         void increaseLayer(int value);
         //
     private:
-        long int number; // number of the node
+        /** node number */
+        long int number;
+        /** layer of node */
         long int layer; // layer of the node
+        /** index of activation function */
         int activationFunctionIndex; // index of the activation function
+        /** bias of the node */
         long double bias; // bias of the node
+        /** is the node an output node */
         bool output; // is the node an output node
+        /** sum of inputs */
         long double inputSum; // sum of the input
-        long double outputValue; // output value of the node
+        /** activated value of the output value */
+        long double activatedOutputValue; // output value of the node
+        /** vector of output connection from this node */
         std::vector<Connection*> outputConnections; // vector of output connections of the node, !! do not delete it in destruction !!
         //
         /**

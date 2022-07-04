@@ -1,7 +1,7 @@
 #include <ctime>
 #include <iostream>
 
-#include "./header/cli.h"
+#include "./cli.h"
 
 namespace neatCpp {
     using namespace std::this_thread;     // sleep_for, sleep_until
@@ -34,7 +34,7 @@ namespace neatCpp {
     }
     void CLI::flushToLogFile() {
         const std::lock_guard<std::mutex> lock(bufferUpdateMutex);
-        const std::vector<Log> logBuffer = outputBuffer->getLogBuffer_locked();
+        const std::vector<Log> logBuffer = outputBuffer->getLogBuffer_unlocked();
         int startIndex = flushedLogId - logBuffer[0].id;
         if (startIndex < 0) startIndex = 0;
         for (int i = startIndex;i < logBuffer.size();++i) {
@@ -55,7 +55,7 @@ namespace neatCpp {
         getAverageScoreStr(averageScoreStr, averageScoreDeltaStr);
         //
         std::string envState = "EnvState";
-        std::vector<Log> outputBufferLog = outputBuffer->getLogBuffer_locked();
+        std::vector<Log> outputBufferLog = outputBuffer->getLogBuffer_unlocked();
         int logStart = outputBufferLog.size() - logHeight;
         //
         std::cout << "\0337\033[1;1HDuration: " + durationStr + " Generation: " + generationStr + "\0338";
@@ -92,7 +92,7 @@ namespace neatCpp {
         if (bestScoreDeltaStr.size() > maxNumberChar) bestScoreDeltaStr.substr(0, maxNumberChar);
     }
     void CLI::handleUserInput() {
-
+        //TODO
     }
     bool CLI::updateOnce() {
         if (envThreadStarted) return false;

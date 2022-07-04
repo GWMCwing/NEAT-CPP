@@ -1,4 +1,4 @@
-#include "./header/player.h"
+#include "./player.h"
 namespace neatCpp {
     // modify according to your needs
     void Player::calculateFitness() {
@@ -10,7 +10,6 @@ namespace neatCpp {
         brain = new Genome(inputSize, outputSize, id, false);
         fitness = 0;
         score = 1;
-        lifespan = 0;
         dead = false;
         decisions.reserve(outputSize);
         vision.reserve(inputSize);
@@ -19,7 +18,6 @@ namespace neatCpp {
         brain = player->brain->clone();
         fitness = player->fitness;
         score = player->score;
-        lifespan = player->lifespan;
         dead = player->dead;
         decisions = player->decisions;
         vision = player->vision;
@@ -28,7 +26,6 @@ namespace neatCpp {
         brain = _brain;
         fitness = 0;
         score = 1;
-        lifespan = 0;
         dead = false;
         decisions.reserve(outputSize);
         vision.reserve(inputSize);
@@ -66,11 +63,11 @@ namespace neatCpp {
     void Player::look(const std::vector<long double>& inputVision) {
         vision = inputVision;
     }
-    const std::vector<long double>& Player::think() {
+    const std::vector<long double> Player::think() {
         decisions = brain->feedForward(vision);
         return decisions;
     }
-    const std::vector<long double>& Player::think(const std::vector<long double>& inputVision) {
+    const std::vector<long double> Player::think(const std::vector<long double>& inputVision) {
         decisions = brain->feedForward(inputVision);
         return decisions;
     }

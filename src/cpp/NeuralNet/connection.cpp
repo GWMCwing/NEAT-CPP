@@ -1,7 +1,7 @@
-#include "./header/randomFun.h"
+#include "../util/randomFun.h"
 
-#include "./header/connection.h"
-#include "./header/node.h"
+#include "./connection.h"
+#include "./node.h"
 
 namespace neatCpp {
     // extern long double randGaussian(double, double, double);

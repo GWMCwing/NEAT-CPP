@@ -1,10 +1,9 @@
-#include "./header/environment.h"
+#include "./environment.h"
 namespace neatCpp {
     void Environment::updateOnce() {
         if (envExiting || envExited) return;
         const std::lock_guard<std::mutex> lock(envUpdateMutex);
         //TODO
-
     }
     Environment::Environment(int populationSize, int inputSize, int outputSize, OutputBuffer* _outputBuffer, std::mutex& _envUpdateMutex)
         : envUpdateMutex(_envUpdateMutex), outputBuffer(_outputBuffer) {

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "./header/population.h"
-#include "./header/randomFun.h"
+#include "./population.h"
+#include "../util/randomFun.h"
 namespace neatCpp {
     Population::Population(int populationSize, int inputSize, int outputSize, OutputBuffer* _outputBuffer) {
         bestFitness = 0;
@@ -49,7 +49,7 @@ namespace neatCpp {
             children.push_back(parent1->crossover(parent2));
 
         }
-        deleteAllPlayer();
+        removeAllPlayer();
         population = children;
         ++generation;
         //
@@ -114,7 +114,7 @@ namespace neatCpp {
     long double Population::getBestPlayerScore() const {
         return bestPlayer ? bestPlayer->getScore() : -1;
     }
-    void Population::deleteAllPlayer() {
+    void Population::removeAllPlayer() {
         for (int i = 0; i < population.size(); ++i) {
             delete population[i];
             population[i] = nullptr;
@@ -156,7 +156,7 @@ namespace neatCpp {
         }
         return true;
     }
-    Population* Population::importPopulation(std::string path) {
+    Population* Population::importPopulation(std::fstream& fileStream) {
         //TODO
     }
 }

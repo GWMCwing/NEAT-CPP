@@ -1,4 +1,4 @@
-#include "./header/randomFun.h"
+#include "./randomFun.h"
 #include <random>
 namespace neatCpp {
     long double randGaussian(double lowBound, double upBound, double deviation) {

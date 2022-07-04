@@ -1,8 +1,7 @@
-#include "./header/activationFunction.h"
-#include "./header/randomFun.h"
+#include "../util/randomFun.h"
 
-#include "./header/node.h"
-#include "./header/connection.h"
+#include "./node.h"
+#include "./connection.h"
 namespace neatCpp {
     //
     // definition of activation function
@@ -16,7 +15,7 @@ namespace neatCpp {
         activationFunctionIndex = randNum(0, numberOfActivation);
 
         inputSum = 0;
-        outputValue = 0;
+        activatedOutputValue = 0;
         outputConnections = std::vector<Connection*>();
         // std::cout << "created Node: " << _number << std::endl;
     }
@@ -27,13 +26,13 @@ namespace neatCpp {
     //
     void Node::engage() {
         if (layer != 0) {
-            outputValue = activationGetValue(activationFunctionIndex, inputSum + bias);
+            activatedOutputValue = activationGetValue(activationFunctionIndex, inputSum + bias);
         }
         const long int connectionSize = outputConnections.size();
         for (int i = 0; i < connectionSize; ++i) {
             const Connection* const conn = outputConnections[i];
             if (conn->getEnabled()) {
-                conn->getToNode()->inputSum += conn->getWeight() * outputValue;
+                conn->getToNode()->inputSum += conn->getWeight() * activatedOutputValue;
             }
         }
     }
@@ -80,7 +79,7 @@ namespace neatCpp {
     void Node::clearOutputConnections() { outputConnections.clear(); }
     void Node::pushBackConnections(Connection* connection) { outputConnections.push_back(connection); }
     void Node::setInputSum(long double value) { inputSum = value; }
-    void Node::setOutputValue(long double value) { outputValue = value; }
+    void Node::setActivatedOutputValue(long double value) { activatedOutputValue = value; }
     void Node::setActivationFunctionIndex(int index) { activationFunctionIndex = index; }
     void Node::setBias(int biasValue) { bias = biasValue; }
     void Node::increaseLayer(int value) { layer += value; }
@@ -88,7 +87,7 @@ namespace neatCpp {
     // getter
     long int Node::getNumber() const { return number; }
     long int Node::getOutput() const { return output; }
-    long int Node::getOutputValue() const { return outputValue; }
+    long int Node::getActivatedOutputValue() const { return activatedOutputValue; }
     int Node::getActivationFunctionIndex() const { return activationFunctionIndex; }
     long double Node::getBias() const { return bias; }
     long int Node::getLayer() const { return layer; }

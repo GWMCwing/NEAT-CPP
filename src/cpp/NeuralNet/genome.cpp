@@ -1,15 +1,13 @@
 #include <cmath>
 #include <algorithm>
 
-#include "./header/randomFun.h"
+#include "../util/randomFun.h"
 
-#include "./header/genome.h"
-#include "./header/node.h"
-#include "./header/connection.h"
+#include "./genome.h"
+#include "./node.h"
+#include "./connection.h"
 
 namespace neatCpp {
-    //
-    bool nodeCompare(Node*, Node*);
     //
     Genome::Genome(long int _input, long int _output, long int _id, bool _offSpring) {
         inputs = _input;
@@ -80,7 +78,7 @@ namespace neatCpp {
         // assign new inputs
         const long int inputLen = input.size();
         for (long int i = 0; i < inputLen; ++i) {
-            nodes[i]->setOutputValue(input[i]);
+            nodes[i]->setActivatedOutputValue(input[i]);
         }
 
         // engage all nodes and Extract the results from the output nodes
@@ -89,7 +87,7 @@ namespace neatCpp {
             Node* node = nodes[i];
             node->engage();
             if (node->getOutput()) {
-                result.push_back(node->getOutputValue());
+                result.push_back(node->getActivatedOutputValue());
             }
         }
 
@@ -233,8 +231,7 @@ namespace neatCpp {
         connections.push_back(newConnection);
     }
 
-    long int Genome::commonConnection(long int innovationNumber, const std::vector<Connection* >& connections) const {
-
+    long int Genome::commonConnection(const long int& innovationNumber, const std::vector<Connection* >& connections) const {
         const long int connectionLen = connections.size();
         for (long int i = 0; i < connectionLen; ++i) {
             if (connections[i]->getInnovationNumber() == innovationNumber) {
@@ -281,7 +278,7 @@ namespace neatCpp {
     }
 
     void Genome::sortByLayer() {
-        std::sort(nodes.begin(), nodes.end(), nodeCompare);
+        std::sort(nodes.begin(), nodes.end(), Genome::nodeCompare);
     }
 
     Genome* Genome::clone() const {
@@ -327,21 +324,21 @@ namespace neatCpp {
     long double Genome::calculateWeight() const {
         return connections.size() + nodes.size();
     }
-    void Genome::exportGenome(std::fstream& file) {
-        file << nodes.size() << " " << connections.size()
+    void Genome::exportGenome(std::fstream& fileStream) {
+        fileStream << nodes.size() << " " << connections.size()
             << " " << layers << " " << nextNode << "\n";
         for (int i = 0; i < nodes.size(); ++i) {
-            nodes[i]->exportNode(file);
-            file << " ";
+            nodes[i]->exportNode(fileStream);
+            fileStream << " ";
         }
-        file << "\n";
+        fileStream << "\n";
         for (int i = 0; i < connections.size(); ++i) {
-            connections[i]->exportConnection(file);
-            file << " ";
+            connections[i]->exportConnection(fileStream);
+            fileStream << " ";
         }
     }
 
-    bool nodeCompare(Node* n1, Node* n2) {
+    bool Genome::nodeCompare(Node* n1, Node* n2) {
         return n1->getNumber() < n2->getNumber();
     }
 
