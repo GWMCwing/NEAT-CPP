@@ -1,4 +1,4 @@
-#include "../../src/cpp/header/player.h"
+#include "./player.h"
 namespace neatCpp {
     // modify according to your needs
     void Player::calculateFitness() {
@@ -6,11 +6,10 @@ namespace neatCpp {
         fitness /= brain->calculateWeight();
     }
     // default implementation
-    Player::Player(int id) {
+    Player::Player(long int id, int inputSize, int outputSize) {
         brain = new Genome(inputSize, outputSize, id, false);
         fitness = 0;
         score = 1;
-        lifespan = 0;
         dead = false;
         decisions.reserve(outputSize);
         vision.reserve(inputSize);
@@ -19,7 +18,6 @@ namespace neatCpp {
         brain = player->brain->clone();
         fitness = player->fitness;
         score = player->score;
-        lifespan = player->lifespan;
         dead = player->dead;
         decisions = player->decisions;
         vision = player->vision;
@@ -28,10 +26,9 @@ namespace neatCpp {
         brain = _brain;
         fitness = 0;
         score = 1;
-        lifespan = 0;
         dead = false;
-        decisions.reserve(outputSize);
-        vision.reserve(inputSize);
+        decisions.reserve(brain->getOutputSize());
+        vision.reserve(brain->getInputSize());
     }
     Player::~Player() {
         delete brain;
@@ -50,6 +47,11 @@ namespace neatCpp {
         child->brain->mutate();
         return child;
     }
+    //
+    void Player::exportPlayer(std::fstream& file) {
+        brain->exportGenome(file);
+    }
+    //
     Genome* Player::getBrain() const { return brain; }
     long double Player::getFitness() const { return fitness; }
     void Player::setFitness(long double value) { fitness = value; }
@@ -61,13 +63,26 @@ namespace neatCpp {
     void Player::look(const std::vector<long double>& inputVision) {
         vision = inputVision;
     }
-    const std::vector<long double>& Player::think() {
+    const std::vector<long double> Player::think() {
         decisions = brain->feedForward(vision);
         return decisions;
     }
-    const std::vector<long double>& Player::think(const std::vector<long double>& inputVision) {
+    const std::vector<long double> Player::think(const std::vector<long double>& inputVision) {
         decisions = brain->feedForward(inputVision);
         return decisions;
+    }
+    void Player::train(const std::vector<long double>& inputVision, const std::vector<long double>& groundTruth) {
+        std::vector<long double> decisions = think(inputVision);
+        long double decisionError = compare(decisions, groundTruth);
+        score += 1 / decisionError;
+    }
+    long double Player::compare(const std::vector<long double>& decisions, const std::vector<long double>& groundTruth) {
+        int length = decisions.size();
+        long double r = 0;
+        for (int i = 0; i < length; ++i) {
+            r += pow(decisions[i] - groundTruth[i], 2) * 1000;
+        }
+        return r;
     }
 
 }

@@ -4,6 +4,7 @@
 #include "./cli.h"
 
 namespace neatCpp {
+    class Environment;
     using namespace std::this_thread;     // sleep_for, sleep_until
     using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
     using std::chrono::system_clock;
@@ -24,6 +25,7 @@ namespace neatCpp {
         inputLine = 14;
         flushedLogId = 0;
         startTime = time(nullptr);
+        updateDisplay();
         startContinuousUpdate(); // create new thread for continuous update
     }
     CLI::~CLI() {
@@ -44,6 +46,7 @@ namespace neatCpp {
         outputBuffer->flushed(flushedLogId);
     }
     void CLI::updateDisplay() {
+
         // to prevent unexpected concurrent call (maybe encountered during user call)
         std::lock_guard<std::mutex> lockDisplay(displayUpdateMutex);
         std::lock_guard<std::mutex> lockBuffer(bufferUpdateMutex);
@@ -53,21 +56,27 @@ namespace neatCpp {
         std::string generationStr = std::to_string(env->getGeneration());
         getBestScoreStr(bestScoreStr, bestScoreDeltaStr);
         getAverageScoreStr(averageScoreStr, averageScoreDeltaStr);
+        // bestScoreStr = '0';
+        // bestScoreDeltaStr = '0';
+        // averageScoreDeltaStr = '0';
+        // averageScoreStr = '0';
+
         //
         std::string envState = "EnvState";
         std::vector<Log> outputBufferLog = outputBuffer->getLogBuffer_unlocked();
+        //?????
         int logStart = outputBufferLog.size() - logHeight;
         //
-        std::cout << "\0337\033[1;1HDuration: " + durationStr + " Generation: " + generationStr + "\0338";
-        std::cout << "\0337\033[2;1HBest Score: " + bestScoreStr + ", Delta: " + bestScoreDeltaStr + "\0338";
-        std::cout << "\0337\033[3;1HAverage Score: " + averageScoreStr + ", Delta: " + averageScoreDeltaStr + "\0338";
-        std::cout << "\0337\033[4;1HEnvironment State: " + envState + "\0338";
-        std::cout << "\0337\033[5;1H---------------------\0338";
-
-        for (int i = 0; i < logHeight; ++i) {
-            std::string logString = formatString_colored(outputBufferLog[logStart + i]);
-            std::cout << "\0337\033[" + std::to_string(logStartLine + i) + ";1H" + logString + "\0338";
-        }
+        std::cout << "\0337\033[3;1HDuration: " + durationStr + " Generation: " + generationStr + "\0338";
+        std::cout << "\0337\033[4;1HBest Score: " + bestScoreStr + ", Delta: " + bestScoreDeltaStr + "\0338";
+        std::cout << "\0337\033[5;1HAverage Score: " + averageScoreStr + ", Delta: " + averageScoreDeltaStr + "\0338";
+        std::cout << "\0337\033[6;1HEnvironment State: " + envState + "\0338";
+        std::cout << "\0337\033[7;1H---------------------\0338";
+        if (logStart > 0)
+            for (int i = 0; i < logHeight; ++i) {
+                std::string logString = formatString_colored(outputBufferLog[logStart + i]);
+                std::cout << "\0337\033[" + std::to_string(logStartLine + i + 2) + ";1H" + logString + "\0338";
+            }
         std::cout.flush();
     }
     void CLI::getDurationStr(std::string& durationStr) const {
@@ -135,7 +144,8 @@ namespace neatCpp {
     void CLI::continuousUpdateEnvironment() {
         while (!(env->isEnvExiting())) {
             env->updateOnce();
-            std::this_thread::sleep_for(5ms);
+            updateDisplay();
+            std::this_thread::sleep_for(500ms);
         }
     }
     std::string CLI::formatString(Log log) const {

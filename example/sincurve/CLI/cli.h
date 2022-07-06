@@ -20,7 +20,9 @@ namespace neatCpp {
          * @param _expectedGeneration auto export population data when expectedGeneration is reached
          * @param logFileStream ofstream for the logFile of the cli and environment
          */
+
         CLI(int populationSize, int inputSize, int outputSize, int _expectedGeneration, std::ofstream& logFileStream);
+        // CLI(CLI&) = delete;
         ~CLI();
         /** @brief flush and update the cli display*/
         void updateDisplay();
@@ -65,7 +67,7 @@ namespace neatCpp {
         /** @brief number of line the input line*/
         int inputLine;
         /** @brief log id for flushing, atomic for async access of log flushing and appending*/
-        std::atomic<int> flushedLogId;
+        std::atomic<int> flushedLogId { -1 };
         //
         /** @brief reference of ofstream of destination of logFile*/
         std::ofstream& logFile;
@@ -132,7 +134,7 @@ namespace neatCpp {
         /** @brief thread of the environemnt update*/
         std::thread envThread;
         /** @brief boolean representing the is Environemnt thread is running*/
-        std::atomic<bool> envThreadStarted;
+        std::atomic<bool> envThreadStarted { false };
         /** @brief storing the time of starting time*/
         std::time_t startTime;
         /** @brief max number of character to be displayed for each number displayed*/

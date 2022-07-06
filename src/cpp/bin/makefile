@@ -1,25 +1,41 @@
-ObjFiles:= activationFunction.o randomFun.o connection.o genome.o node.o player.o population.o 
+ObjFiles:=  outputBuffer.o connection.o genome.o node.o population.o randomFun.o activationFunction.o cli.o
+rootPath:= $(realpath .)
 
-nn.exe: $(ObjFiles)
-	g++ -o nn.exe $(ObjFiles) 
+generate: $(ObjFiles)
+	@echo 'Generating all base object files, Envrionment.o requires seperate compilation from modified Enviroment.cpp'
 
-connection.o: ../connection.cpp
-	g++ -c ../connection.cpp -o connection.o
+connection.o: ../NeuralNet/connection.cpp
+	cd $(rootPath)
+	g++ -c ../NeuralNet/connection.cpp -o ../bin/connection.o
 
-genome.o: ../genome.cpp
-	g++ -c ../genome.cpp -o genome.o
+genome.o: ../NeuralNet/genome.cpp
+	cd $(rootPath)
+	g++ -c ../NeuralNet/genome.cpp -o ../bin/genome.o
 
-node.o: ../node.cpp
-	g++ -c ../node.cpp -o node.o
+node.o: ../NeuralNet/node.cpp
+	cd $(rootPath)
+	g++ -c ../NeuralNet/node.cpp -o ../bin/node.o
 
-player.o : ../player.cpp
-	g++ -c ../player.cpp -o player.o
+# player.o : ../NeuralNet/player.cpp
+# 	cd $(rootPath)
+# 	g++ -c ../NeuralNet/player.cpp -o ../bin/player.o
 
-population.o : ../population.cpp
-	g++ -c ../population.cpp -o population.o
+population.o : ../NeuralNet/population.cpp
+	cd $(rootPath)
+	g++ -c ../NeuralNet/population.cpp -o ../bin/population.o
 
-randomFun.o : ../randomFun.cpp
-	g++ -c ../randomFun.cpp -o randomFun.o
+randomFun.o : ../util/randomFun.cpp
+	cd $(rootPath)
+	g++ -c ../util/randomFun.cpp -o ../bin/randomFun.o
 
-activationFunction.o: ../activationFunction.cpp
-	g++ -c ../activationFunction.cpp -o activationFunction.o
+activationFunction.o: ../util/activationFunction.cpp
+	cd $(rootPath)
+	g++ -c ../util/activationFunction.cpp -o ../bin/activationFunction.o
+
+cli.o: ../CLI/cli.cpp
+	cd $(rootPath)
+	g++ -c ../CLI/cli.cpp -o ../bin/cli.o
+
+outputBuffer.o: ../CLI/outputBuffer.cpp
+	cd $(rootPath)
+	g++ -c ../CLI/outputBuffer.cpp -o ../bin/outputBuffer.o

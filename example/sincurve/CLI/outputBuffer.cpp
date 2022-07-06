@@ -20,11 +20,11 @@ namespace neatCpp {
         }
         --awaitingThread;
     }
-    const std::vector<Log>& OutputBuffer::getLogBuffer_locked() const {
+    const std::vector<Log> OutputBuffer::getLogBuffer_locked() const {
         std::lock_guard<std::mutex> lock(bufferMutex);
         return logBuffer;
     }
-    const std::vector<Log>& OutputBuffer::getLogBuffer_unlocked() const { return logBuffer; }
+    const std::vector<Log> OutputBuffer::getLogBuffer_unlocked() const { return logBuffer; }
     void OutputBuffer::flushed(int _flushedLogId) { flushedLogId = _flushedLogId; }
     bool OutputBuffer::isEmpty(int _flushedLogId) const { return !awaitingThread && flushedLogId == _flushedLogId; }
 }
